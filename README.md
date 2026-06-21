@@ -4,6 +4,8 @@
 
 这是一个 Cloudflare Worker 中转适配器，用于把 `https://unlimited.surf` 转换成 OpenAI 兼容的 `/v1/*` 接口，以及 Anthropic/Claude Code 兼容的 `/v1/messages` 和 `/anthropic/*` 接口。
 
+> **完整部署指南请查看 [DEPLOY.md](./DEPLOY.md)** — 包含详细的部署步骤、配置说明、Troubleshooting、与原版对比等。
+
 ## Tool Calling 支持说明
 
 本项目基于 [eooce/transfer-api](https://github.com/eooce/transfer-api) 改造，在原版基础上修复了 Anthropic Messages API 的 Tool Calling 支持问题。本项目是独立维护的增强版本，不需要也不建议与原版项目同步。
@@ -339,6 +341,8 @@ curl https://<your-worker>.workers.dev/v1/messages \
 
 This is a Cloudflare Worker adapter for `https://unlimited.surf`. It exposes OpenAI-compatible `/v1/*` routes and Anthropic/Claude Code-compatible `/v1/messages` plus `/anthropic/*` aliases.
 
+> **Full deployment guide: [DEPLOY.md](./DEPLOY.md)** — step-by-step instructions, configuration reference, troubleshooting, and comparison with the original project.
+
 ## Tool Calling Support
 
 This project is an enhanced version based on [eooce/transfer-api](https://github.com/eooce/transfer-api), with a critical fix for Anthropic Messages API tool calling support. This is a standalone, independently maintained project — syncing with the original repository is neither needed nor recommended.
@@ -365,7 +369,7 @@ Requests **without tools** still use the original text conversion path (via `/ap
 
 ### Enhanced wrangler.toml configuration
 
-The original `wrangler.toml` contains only basic settings. This fork adds:
+The original `wrangler.toml` contains only basic settings. This project adds:
 
 ```toml
 # Custom domain routing (requires domain added to Cloudflare first)
@@ -386,7 +390,7 @@ UNLIMITED_SURF_API_KEY = "<set via Secrets>"
 
 ### Deployment differences
 
-This fork supports two deployment methods:
+This project supports two deployment methods:
 
 - **GitHub + Cloudflare auto-deploy**: Same as the original — push code and Cloudflare builds automatically.
 - **Wrangler CLI manual deploy**: For precise control over routes, custom domains, and environment variables.
@@ -601,7 +605,7 @@ $env:ANTHROPIC_MODEL = "claude-opus-4-7-20260101"
 claude
 ```
 
-### Tool Calling Example (added in this fork)
+### Tool Calling Example
 
 When a request includes `tools`, the Worker automatically routes it through the direct proxy path, preserving the full Anthropic tool calling protocol:
 
