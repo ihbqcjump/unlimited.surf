@@ -1,0 +1,78 @@
+# =============================================================================
+# Cloudflare Worker 配置文件 — unlimited-transfer-api
+# =============================================================================
+# 本文件是 wrangler 部署配置。部署命令：npx wrangler deploy
+# 如需自定义域名，取消下方 routes 注释并修改为你的域名。
+# =============================================================================
+#
+# 相比原版的增强（独立维护版本，不与原版同步）：
+# 1. 增加了 routes 注释模板（原版没有自定义域名配置）
+# 2. 增加了详细的密钥配置说明和优先级规则
+# 3. Worker name 默认保持 "unlimited-transfer-api"
+#    （部署后可在 Cloudflare Dashboard 修改为任意名称）
+#
+# Enhancements over original (standalone version, not synced with original):
+# 1. Added routes template for custom domain binding
+# 2. Added detailed secret configuration guide
+# 3. Worker name defaults to "unlimited-transfer-api"
+#    (rename in Cloudflare Dashboard after deploy)
+#
+# =============================================================================
+
+name = "unlimited-transfer-api"
+main = "src/worker.js"
+compatibility_date = "2025-11-21"
+
+# -----------------------------------------------------------------------------
+# 自定义域名路由（可选）
+# -----------------------------------------------------------------------------
+# 如需将 Worker 绑定到自定义域名，取消下方注释并修改：
+#   pattern   = 你的域名（必须是 Cloudflare 管理的域名）
+#   zone_name = 域名根域（Cloudflare Zone 名称）
+#
+# routes = [
+#   { pattern = "api.example.com", zone_name = "example.com", custom_domain = true }
+# ]
+#
+# 设置步骤：
+# 1. 在 Cloudflare Dashboard 添加你的域名
+# 2. DNS 记录中添加 CNAME 指向 Worker（或使用 custom_domain: true 自动处理）
+# 3. 取消上方 routes 注释，填入实际域名
+# 4. 运行 npx wrangler deploy
+
+# -----------------------------------------------------------------------------
+# 环境变量（vars 是非敏感的配置值，会被明文写入 Worker 配置）
+# -----------------------------------------------------------------------------
+# 注意：密钥（API Key）不要放在这里！请使用 Cloudflare Secrets：
+#   wrangler secret put UNLIMITED_SURF_API_KEY
+#   wrangler secret put WORKER_API_KEY
+# -----------------------------------------------------------------------------
+
+[vars]
+# 上游 API 基础 URL（unlimited.surf 的地址）
+UPSTREAM_BASE_URL = "https://unlimited.surf"
+
+# 默认 OpenAI 兼容模型（当客户端未指定 model 时使用）
+DEFAULT_MODEL = "gateway-gpt-5-5"
+
+# 默认 Anthropic/Claude 兼容模型
+DEFAULT_CLAUDE_MODEL = "claude-opus-4-7-20260101"
+
+# =============================================================================
+# 密钥配置说明（通过 Cloudflare Secrets 设置，不要写在本文件中）
+# =============================================================================
+#
+# UNLIMITED_SURF_API_KEY（必需）
+#   unlimited.surf 的 API 密钥，Worker 用它来请求上游服务。
+#   设置方法：wrangler secret put UNLIMITED_SURF_API_KEY
+#
+# WORKER_API_KEY（可选）
+#   客户端访问密钥，用来保护你的 Worker 不被滥用。
+#   设置方法：wrangler secret put WORKER_API_KEY
+#
+# 密钥优先级规则：
+#   设置了 WORKER_API_KEY → 客户端必须传此 key，Worker 用 UNLIMITED_SURF_API_KEY 请求上游
+#   未设置 WORKER_API_KEY → 客户端可传任意 key，Worker 优先用 UNLIMITED_SURF_API_KEY
+#   两者都未设置         → 客户端传入的 key 会被当作上游 key 直接使用
+#
+# =============================================================================
